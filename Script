@@ -1,0 +1,14 @@
+const nameElement = document.getElementById('name');
+const nameText = 'Lukas Machado';
+let index = 0;
+
+function writeName() {
+  nameElement.textContent = nameText.slice(0, index);
+  index++;
+
+  if (index <= nameText.length) {
+    setTimeout(writeName, 100);
+  }
+}
+
+writeName();
