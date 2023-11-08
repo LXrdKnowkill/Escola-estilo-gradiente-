@@ -1,14 +1,90 @@
-const nameElement = document.getElementById('name');
-const nameText = 'Lukas Machado';
-let index = 0;
+const canvas = document.querySelector("#canvas");
+const ctx = canvas.getContext("2d");
 
-function writeName() {
-  nameElement.textContent = nameText.slice(0, index);
-  index++;
+// Variáveis do jogo
+const grid = [];
+const nextPiece = [];
+const level = 1;
+const speed = 200;
 
-  if (index <= nameText.length) {
-    setTimeout(writeName, 100);
+// Funções
+function drawGrid() {
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < 20; j++) {
+      if (grid[i][j] !== null) {
+        ctx.fillStyle = grid[i][j].color;
+        ctx.fillRect(j * 20, i * 20, 20, 20);
+      }
+    }
   }
 }
 
-writeName();
+function drawNextPiece() {
+  ctx.fillStyle = nextPiece.color;
+  ctx.fillRect(10, 10, 20, 20);
+}
+
+function movePiece(direction) {
+  switch (direction) {
+    case "left":
+      for (let i = 0; i < nextPiece.length; i++) {
+        nextPiece[i].x -= 20;
+      }
+      break;
+    case "right":
+      for (let i = 0; i < nextPiece.length; i++) {
+        nextPiece[i].x += 20;
+      }
+      break;
+    case "down":
+      for (let i = 0; i < nextPiece.length; i++) {
+        nextPiece[i].y += 20;
+      }
+      break;
+    case "rotate":
+      nextPiece.rotate();
+      break;
+  }
+}
+
+function checkCollision() {
+  for (let i = 0; i < nextPiece.length; i++) {
+    if (nextPiece[i].x < 0 || nextPiece[i].x >= 20 || nextPiece[i].y >= 20) {
+      return true;
+    }
+    if (grid[nextPiece[i].y][nextPiece[i].x] !== null) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function dropPiece() {
+  while (!checkCollision()) {
+    for (let i = 0; i < nextPiece.length; i++) {
+      nextPiece[i].y += 20;
+    }
+  }
+
+  // Remove linhas completas
+  for (let i = 0; i < 20; i++) {
+    let lineFull = true;
+    for (let j = 0; j < 10; j++) {
+      if (grid[i][j] === null) {
+        lineFull = false;
+        break;
+      }
+    }
+    if (lineFull) {
+      for (let j = 0; j < 10; j++) {
+        grid[i][j] = null;
+      }
+      // Move as linhas acima para baixo
+      for (let j = i; j > 0; j--) {
+        for (let k = 0; k < 10; k++) {
+          grid[j][k] = grid[j - 1][k];
+        }
+     
